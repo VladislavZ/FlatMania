@@ -153,6 +153,7 @@
 		86B5744C1756525300AFC06E /* SBJsonBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B574441756525100AFC06E /* SBJsonBase.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		86B5744E1756525300AFC06E /* SBJsonWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B574481756525300AFC06E /* SBJsonWriter.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		86B574511756548900AFC06E /* SBJsonParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 86B574501756548900AFC06E /* SBJsonParser.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		99D03B291760A52B00165121 /* UIImage+cache.m in Sources */ = {isa = PBXBuildFile; fileRef = 99D03B281760A52B00165121 /* UIImage+cache.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -349,6 +350,8 @@
 		86B5744F1756548800AFC06E /* SBJsonParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonParser.h; sourceTree = "<group>"; };
 		86B574501756548900AFC06E /* SBJsonParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonParser.m; sourceTree = "<group>"; };
 		86D91F17174EA4CF00C4755C /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
+		99D03B271760A52B00165121 /* UIImage+cache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+cache.h"; sourceTree = "<group>"; };
+		99D03B281760A52B00165121 /* UIImage+cache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+cache.m"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -595,6 +598,8 @@
 				869D98C9174FC0E700D0FDE3 /* UIPopoverController - iPhone */,
 				8687C04917443170000049DF /* UIButton+UIButton_withImag.h */,
 				8687C04A17443174000049DF /* UIButton+UIButton_withImag.m */,
+				99D03B271760A52B00165121 /* UIImage+cache.h */,
+				99D03B281760A52B00165121 /* UIImage+cache.m */,
 				8687BFAB17419DA8000049DF /* FMFlatInfoView.h */,
 				8687BFAC17419DA8000049DF /* FMFlatInfoView.m */,
 				8687BFBF1742638C000049DF /* FMImageView.h */,
@@ -922,6 +927,7 @@
 				86B574511756548900AFC06E /* SBJsonParser.m in Sources */,
 				869341521756A5A6002FFAFD /* HDPopoverBAckgroundView.m in Sources */,
 				8613B469175AC95100453200 /* FMAsynhImageView.m in Sources */,
+				99D03B291760A52B00165121 /* UIImage+cache.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

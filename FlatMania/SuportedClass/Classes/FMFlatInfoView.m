@@ -9,6 +9,7 @@
 #import "FMFlatInfoView.h"
 #import <QuartzCore/QuartzCore.h>
 #import "FMAsynhImageView.h"
+#import "UIImage+cache.h"
 
 @implementation FMFlatInfoView
 
@@ -16,13 +17,16 @@
 {
     self = [super initWithFrame:frame];
     if (self) {
-        FMAsynhImageView *imageView = [[FMAsynhImageView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width-2, 300)];
-        [imageView loadImageFromURL:[NSURL URLWithString:image]];
-//        asynthImageView.image = image;
-        imageView.layer.masksToBounds = YES;
-        imageView.layer.cornerRadius=8;
-        imageView.layer.zPosition=1;
-        [self addSubview:imageView];
+        CGRect imageViewFrame = CGRectMake(0, 0, frame.size.width-2, 300);
+        
+        [UIImage loadImageFromURL:[NSURL URLWithString:image] completion:^(UIImage* loadedImage){
+            UIImageView *imageView = [[UIImageView alloc] initWithFrame:imageViewFrame];
+            imageView.image = loadedImage;
+            imageView.layer.masksToBounds = YES;
+            imageView.layer.cornerRadius=8;
+            imageView.layer.zPosition=1;
+            [self addSubview:imageView];
+        }];
 //        UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width-2, 300)];
 //        imageView.image = image;
 //        imageView.layer.masksToBounds = YES;
@@ -31,12 +35,12 @@
 //        [self addSubview:imageView];
         
         UIImage *priceImage = [UIImage imageNamed:@"price.png"];
-        UIImageView *priceImageView = [[UIImageView alloc] initWithFrame:CGRectMake(imageView.frame.size.width-priceImage.size.width+2, imageView.frame.origin.y+imageView.frame.size.height-75, priceImage.size.width, priceImage.size.height)];
+        UIImageView *priceImageView = [[UIImageView alloc] initWithFrame:CGRectMake(imageViewFrame.size.width-priceImage.size.width+2, imageViewFrame.origin.y+imageViewFrame.size.height-75, priceImage.size.width, priceImage.size.height)];
         priceImageView.layer.zPosition=2;
         priceImageView.image = [UIImage imageNamed:@"price.png"];
         [self addSubview:priceImageView];
          UIImage *istrueImage = [UIImage imageNamed:@"istrue.png"];
-        UILabel *priceLabel = [[UILabel alloc] initWithFrame:CGRectMake(imageView.frame.size.width-istrueImage.size.width+2, imageView.frame.origin.y+imageView.frame.size.height-68, istrueImage.size.width, 30)];
+        UILabel *priceLabel = [[UILabel alloc] initWithFrame:CGRectMake(imageViewFrame.size.width-istrueImage.size.width+2, imageViewFrame.origin.y+imageViewFrame.size.height-68, istrueImage.size.width, 30)];
         if (price == nil || [price isKindOfClass:[NSNull class]]) priceLabel.text = @"";
        else
         priceLabel.text =[NSString stringWithFormat:@"%@",price];
@@ -47,28 +51,28 @@
         priceLabel.font = [UIFont fontWithName:@"TrebuchetMS-Bold" size:26];
         [self addSubview:priceLabel];
         if (privat) {
-        UIImageView *privatImageView = [[UIImageView alloc] initWithFrame:CGRectMake(imageView.frame.size.width-istrueImage.size.width+2, imageView.frame.origin.y+imageView.frame.size.height-105, istrueImage.size.width, istrueImage.size.height)];
+        UIImageView *privatImageView = [[UIImageView alloc] initWithFrame:CGRectMake(imageViewFrame.size.width-istrueImage.size.width+2, imageViewFrame.origin.y+imageViewFrame.size.height-105, istrueImage.size.width, istrueImage.size.height)];
             privatImageView.image = istrueImage;
             privatImageView.layer.zPosition=2;
             [self addSubview:privatImageView];
         }
-        UIView *infobackgroundView = [[UIView alloc] initWithFrame:CGRectMake(0, imageView.frame.origin.y+imageView.frame.size.height-10, imageView.frame.size.width, 70)];
+        UIView *infobackgroundView = [[UIView alloc] initWithFrame:CGRectMake(0, imageViewFrame.origin.y+imageViewFrame.size.height-10, imageViewFrame.size.width, 70)];
         infobackgroundView.layer.borderColor = [UIColor grayColor].CGColor;
         infobackgroundView.layer.borderWidth = 0.5;
         infobackgroundView.layer.cornerRadius = 8;
         infobackgroundView.layer.zPosition=0;
         infobackgroundView.backgroundColor=[UIColor whiteColor];
         [self addSubview:infobackgroundView];
-        UILabel *flatTypeLable = [[UILabel alloc] initWithFrame:CGRectMake(20,imageView.frame.origin.y+imageView.frame.size.height+4, 300, 30)];
+        UILabel *flatTypeLable = [[UILabel alloc] initWithFrame:CGRectMake(20,imageViewFrame.origin.y+imageViewFrame.size.height+4, 300, 30)];
         flatTypeLable.text =[NSString stringWithFormat:@"%@ квартира",typeFlat];
         flatTypeLable.font = [UIFont fontWithName:@"TrebuchetMS-Bold" size:18];
         flatTypeLable.backgroundColor = [UIColor clearColor];
         [self addSubview:flatTypeLable];
         
-        UIImageView *clockImageView = [[UIImageView alloc] initWithFrame:CGRectMake(20, imageView.frame.origin.y+imageView.frame.size.height+flatTypeLable.frame.size.height+6, 15, 15)];
+        UIImageView *clockImageView = [[UIImageView alloc] initWithFrame:CGRectMake(20, imageViewFrame.origin.y+imageViewFrame.size.height+flatTypeLable.frame.size.height+6, 15, 15)];
         clockImageView.image = [UIImage imageNamed:@"clock.png"];
         [self addSubview:clockImageView];
-        UILabel *clockLabel = [[UILabel alloc] initWithFrame:CGRectMake(24+clockImageView.frame.size.width, imageView.frame.origin.y+imageView.frame.size.height+flatTypeLable.frame.size.height+6, 80, 15)];
+        UILabel *clockLabel = [[UILabel alloc] initWithFrame:CGRectMake(24+clockImageView.frame.size.width, imageViewFrame.origin.y+imageViewFrame.size.height+flatTypeLable.frame.size.height+6, 80, 15)];
         clockLabel.textColor = [UIColor grayColor];
 //        NSString * timeStampString =@"1304245000";
         NSTimeInterval _interval=[created doubleValue];
@@ -81,11 +85,11 @@
         clockLabel.backgroundColor = [UIColor clearColor];
         [self addSubview:clockLabel];
         
-        UIImageView *metroImageView = [[UIImageView alloc] initWithFrame:CGRectMake(15+clockLabel.frame.origin.x+clockLabel.frame.size.width, imageView.frame.origin.y+imageView.frame.size.height+flatTypeLable.frame.size.height+6, 15, 15)];
+        UIImageView *metroImageView = [[UIImageView alloc] initWithFrame:CGRectMake(15+clockLabel.frame.origin.x+clockLabel.frame.size.width, imageViewFrame.origin.y+imageViewFrame.size.height+flatTypeLable.frame.size.height+6, 15, 15)];
         metroImageView.image = [UIImage imageNamed:@"metro.png"];
         [self addSubview:metroImageView];
         
-        UILabel *metroNameLable = [[UILabel alloc] initWithFrame:CGRectMake(35+clockLabel.frame.origin.x+clockLabel.frame.size.width, imageView.frame.origin.y+imageView.frame.size.height+flatTypeLable.frame.size.height+6, 130, 15)];
+        UILabel *metroNameLable = [[UILabel alloc] initWithFrame:CGRectMake(35+clockLabel.frame.origin.x+clockLabel.frame.size.width, imageViewFrame.origin.y+imageViewFrame.size.height+flatTypeLable.frame.size.height+6, 130, 15)];
         if ([metro isKindOfClass:[NSNull class]])
             metroNameLable.text = @"";
         else

@@ -15,6 +15,7 @@
     UIButton *favoriteButton;
     UIButton *addFooterButton;
     FMMenuViewController *slideMenu;
+    UINavigationController *navController;
 }
 @property (nonatomic,retain) UIActivityIndicatorView *activityIndicator;
 
@@ -98,29 +99,68 @@
     
     self = [self init];
     if(self) {
+        BOOL zevsFlag = YES;
         _rootViewController = rootViewController;
-         UIImage *settingImage = [UIImage imageNamed:@"settings.png"];
-        UIButton *settingButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        settingButton.frame = CGRectMake(0, 0, settingImage.size.width, settingImage.size.height);
-        [settingButton addTarget:self.slideMenuController action:@selector(toggleMenu) forControlEvents:
-         UIControlEventTouchUpInside];
-       
-        [settingButton setBackgroundImage:settingImage forState:UIControlStateNormal];
-        rootViewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:settingButton];
-        
-               [self addChildViewController:rootViewController];
-        rootViewController.view.frame = self.contentView.bounds;
-        [self.contentView addSubview:rootViewController.view];
-        [self.navigationBar pushNavigationItem:rootViewController.navigationItem animated:YES];
-        rootViewController.navigationController = self;
+        if (zevsFlag) {
+//            [self addChildViewController:rootViewController];
+//            rootViewController.view.frame = self.contentView.bounds;
+//            [self.contentView addSubview:rootViewController.view];
+//            [self.navigationBar pushNavigationItem:rootViewController.navigationItem animated:YES];
+//            rootViewController.navigationController = self;
 
-//        [self addActivityIndicator:YES];
+            navController = [[UINavigationController alloc] initWithRootViewController:_rootViewController];
+            [self.view addSubview:navController.view];
+//            [navController.view addSubview:_rootViewController.view];
+//            [navController pushViewController:_rootViewController animated:YES];
+        }
+        else
+        {
+            UIImage *settingImage = [UIImage imageNamed:@"settings.png"];
+            UIButton *settingButton = [UIButton buttonWithType:UIButtonTypeCustom];
+            settingButton.frame = CGRectMake(0, 0, settingImage.size.width, settingImage.size.height);
+            [settingButton addTarget:self.slideMenuController action:@selector(toggleMenu) forControlEvents:
+             UIControlEventTouchUpInside];
+            
+            [settingButton setBackgroundImage:settingImage forState:UIControlStateNormal];
+            rootViewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:settingButton];
+            
+            [self addChildViewController:rootViewController];
+            rootViewController.view.frame = self.contentView.bounds;
+            [self.contentView addSubview:rootViewController.view];
+            [self.navigationBar pushNavigationItem:rootViewController.navigationItem animated:YES];
+            rootViewController.navigationController = self;
+        }
     }
     return self;
 }
 
 - (void)pushViewController:(FMSlideViewController *)controller
 {
+    NSLog(@"[self.childViewControllers count] = %d", [self.childViewControllers count]);
+    if(1)
+    {
+//        [navController popViewControllerAnimated:NO];
+//        [navController transitionFromViewController:_rootViewController toViewController:controller duration:.2 options:0 animations:nil completion:nil];
+//        [navController pushViewController:controller animated:YES];
+//        [navController.topViewController.view removeFromSuperview];
+//        
+//        [navController pushViewController:controller animated:YES];
+        
+//        NSMutableArray *allViewControllers = [NSMutableArray arrayWithArray: navController.viewControllers];
+//        [allViewControllers removeLastObject];
+//        navController.viewControllers = allViewControllers;
+        
+        for (UIView *view in navController.topViewController.view.subviews) {
+            [view removeFromSuperview];
+        }
+        
+        [navController pushViewController:controller animated:YES];
+        
+        
+        _rootViewController = controller;
+        return;
+    }
+
     [self addChildViewController:controller];
     
     [self.navigationBar pushNavigationItem:controller.navigationItem animated:NO];
@@ -142,6 +182,7 @@
                                 }];
 //        [self transitionFromViewController:previousController toViewController:controller duration:0.5 options:UIViewAnimationOptionTransitionNone animations:NULL completion:NULL];
     }
+_rootViewController = controller;
 }
 
 - (UIViewController *)popViewController

@@ -12,7 +12,7 @@
 @synthesize fill;
 
 - (id)initWithFrame:(CGRect)aRect{
-	[super initWithFrame:aRect];
+	self = [super initWithFrame:aRect];
 	
 	//activityIndicator=[[UIActivityIndicatorView alloc] initWithFrame:CGRectMake(27.0, 27.0, 20.0, 20.0)];
 	

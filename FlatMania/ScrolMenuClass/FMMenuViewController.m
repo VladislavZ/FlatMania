@@ -280,18 +280,33 @@
 
 -(FMNavigationController *)addViewController:(FMSlideViewController *)controller withTitle:(NSString *)title
 {
-    [navController removeFromParentViewController];
-    [navController.view removeFromSuperview];
-    navController.view = nil;
-    navController = nil;
-//    NSArray *childViewController = self.childViewControllers;
-//    [[self.childViewControllers lastObject] removeFromParentViewController];
-    navController = [[FMNavigationController alloc] initWithRootViewController:controller];
-    navController.slideMenuController = self;
-    navController.title = title;
+    BOOL zevsFlag = YES;
+    if (zevsFlag) {
+        if (navController) {
+            [navController pushViewController:controller];
+        }
+        else {
+            navController = [[FMNavigationController alloc] initWithRootViewController:controller];
+            navController.slideMenuController = self;
+            navController.title = title;
+            [self.contentView addSubview:navController.view];
+            [self presentModalViewController:navController animated:YES];
+        }
+    }
+    else {
+        [navController removeFromParentViewController];
+        [navController.view removeFromSuperview];
+        navController.view = nil;
+        navController = nil;
+        //    NSArray *childViewController = self.childViewControllers;
+        //    [[self.childViewControllers lastObject] removeFromParentViewController];
+        navController = [[FMNavigationController alloc] initWithRootViewController:controller];
+        navController.slideMenuController = self;
+        navController.title = title;
     
-    [self addChildViewController:navController];
-    [self.contentView addSubview:navController.view];
+        [self addChildViewController:navController];
+        [self.contentView addSubview:navController.view];
+    }
     
     return navController;
 }
