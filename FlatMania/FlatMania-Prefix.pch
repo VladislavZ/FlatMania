@@ -11,6 +11,8 @@
 #define FMSearchViewShow @"FMSearchViewShow"
 #define FMAddActivityIndicator @"FMAddActivityIndicator"
 #define FMRemoveActivityIndicator @"FMremoveActivityIndicator"
+#define FMMenuViewShow @"FMMenuViewShow"
+#define FMDatailView @"FMDatailView"
 
 #define dropMenuCellHeight 35.0f
 

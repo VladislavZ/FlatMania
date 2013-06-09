@@ -42,7 +42,20 @@
     [self.aboutLabel sizeToFit];
     self.aboutLabel.textColor = [[UIColor alloc] initWithRed:80/255.0f green:80/255.0f blue:80/255.0f alpha:1.0f];
     self.aboutLabel.frame = CGRectMake(self.aboutLabel.frame.origin.x, self.aboutLabel.frame.origin.y, self.aboutLabel.frame.size.width, 2100);
+    
+    UIImage *settingImage = [UIImage imageNamed:@"settings.png"];
+    UIButton *settingButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    settingButton.frame = CGRectMake(0, 0, settingImage.size.width, settingImage.size.height);
+    [settingButton addTarget:self action:@selector(toggleMenu) forControlEvents:
+     UIControlEventTouchUpInside];
+    
+    [settingButton setBackgroundImage:settingImage forState:UIControlStateNormal];
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:settingButton];
     // Do any additional setup after loading the view from its nib.
+}
+
+-(void)toggleMenu {
+    [[NSNotificationCenter defaultCenter] postNotificationName:FMMenuViewShow object:self userInfo:nil];
 }
 
 - (void)didReceiveMemoryWarning

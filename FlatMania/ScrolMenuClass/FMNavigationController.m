@@ -38,7 +38,7 @@
         CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
         CGRect masterRect = [[UIScreen mainScreen] bounds];
         UIImage *navigationBarImage = [UIImage imageNamed:@"bgtop.png"];
-        CGRect contentFrame = CGRectMake(0.0, navigationBarImage.size.height, masterRect.size.width, masterRect.size.height - navigationBarImage.size.height-statusBarFrame.size.height);
+        CGRect contentFrame = CGRectMake(0.0, 0.0, masterRect.size.width, masterRect.size.height - navigationBarImage.size.height);
         CGRect navBarFrame = CGRectMake(0.0, 0.0, masterRect.size.width, navigationBarImage.size.height);
         
         self.view = [[UIView alloc] initWithFrame:masterRect];
@@ -50,11 +50,11 @@
         self.contentView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
         [self.view addSubview:self.contentView];
         
-        self.navigationBar = [[UINavigationBar alloc] initWithFrame:navBarFrame];
-        self.navigationBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
-        self.navigationBar.delegate = self;
-        [self.navigationBar setBackgroundImage:navigationBarImage forBarMetrics:UIBarMetricsDefault];
-        [self.view insertSubview:self.navigationBar aboveSubview:self.contentView];
+//        self.navigationBar = [[UINavigationBar alloc] initWithFrame:navBarFrame];
+//        self.navigationBar.autoresizingMask = UIViewAutoresizingFlexibleWidth;
+//        self.navigationBar.delegate = self;
+//        [self.navigationBar setBackgroundImage:navigationBarImage forBarMetrics:UIBarMetricsDefault];
+//        [self.view insertSubview:self.navigationBar aboveSubview:self.contentView];
 
 
         
@@ -102,14 +102,22 @@
         BOOL zevsFlag = YES;
         _rootViewController = rootViewController;
         if (zevsFlag) {
-//            [self addChildViewController:rootViewController];
-//            rootViewController.view.frame = self.contentView.bounds;
-//            [self.contentView addSubview:rootViewController.view];
-//            [self.navigationBar pushNavigationItem:rootViewController.navigationItem animated:YES];
-//            rootViewController.navigationController = self;
-
+            UIImage *settingImage = [UIImage imageNamed:@"settings.png"];
+            UIButton *settingButton = [UIButton buttonWithType:UIButtonTypeCustom];
+            settingButton.frame = CGRectMake(0, 0, settingImage.size.width, settingImage.size.height);
+            [settingButton addTarget:self.slideMenuController action:@selector(toggleMenu) forControlEvents:
+             UIControlEventTouchUpInside];
+            
+            [settingButton setBackgroundImage:settingImage forState:UIControlStateNormal];
+            rootViewController.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:settingButton];
+            
             navController = [[UINavigationController alloc] initWithRootViewController:_rootViewController];
+            [navController.navigationBar setBackgroundImage:[UIImage imageNamed:@"bgtop.png"] forBarMetrics:UIBarMetricsDefault];
             [self.view addSubview:navController.view];
+            navController.view.frame = CGRectMake(navController.view.frame.origin.x,
+                                                  0,
+                                                  navController.view.frame.size.width,
+                                                  navController.view.frame.size.height+[UIApplication sharedApplication].statusBarFrame.size.height);
 //            [navController.view addSubview:_rootViewController.view];
 //            [navController pushViewController:_rootViewController animated:YES];
         }
@@ -149,7 +157,8 @@
 //        NSMutableArray *allViewControllers = [NSMutableArray arrayWithArray: navController.viewControllers];
 //        [allViewControllers removeLastObject];
 //        navController.viewControllers = allViewControllers;
-        
+//        [navController.navigationBar pushNavigationItem:controller.navigationItem animated:NO];
+
         for (UIView *view in navController.topViewController.view.subviews) {
             [view removeFromSuperview];
         }

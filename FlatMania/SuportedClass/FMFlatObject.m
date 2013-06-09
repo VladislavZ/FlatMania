@@ -16,6 +16,8 @@
     self = [super init];
     if (self) {
         self.mainImage = nil;
+        self.liberal = NO;
+        self.privat = NO;
         self.imageFlatArray = [[NSMutableArray alloc] init];
         self.typeHouseID = 1000;
         self.typeFlatID = 1000;

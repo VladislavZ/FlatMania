@@ -39,12 +39,13 @@
 @synthesize flatImageArray;
 @synthesize imageScrolView,typeFlatLabel,pageControl,favoriteFlag;
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil andFlatDictionary:(NSMutableDictionary*)flatDictionary andTypeDirection:(BOOL)direction
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil andFlatDictionary:(NSMutableDictionary*)flatDictionary andTypeDirection:(BOOL)direction andTypeFooter:(int)types
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         userDefaults = [NSUserDefaults standardUserDefaults];
         infoFlatDictionary = flatDictionary;
+        typeView= types;
         idFlatParametr = [[infoFlatDictionary objectForKey:@"Id"] integerValue];
         userIdParametr = [[infoFlatDictionary objectForKey:@"UserId"] integerValue];
         self.flatImageArray = [self loadImageFlatByID:idFlatParametr];
@@ -196,12 +197,6 @@
         NSString *imageLink = [NSString stringWithFormat:@"%@/%d/%@",imageUrl,idFlatParametr,[[self.flatImageArray objectAtIndex:k] objectForKey:@"link"]];
         FMAsynhImageView *flatImageView = [[FMAsynhImageView alloc] initWithFrame:CGRectMake(xPositionImage, 0, self.view.frame.size.width, self.imageScrolView.frame.size.height)];
         [flatImageView loadImageFromURL:[NSURL URLWithString:imageLink]];
-//        UIImageView *flatImageView = [[UIImageView alloc] initWithFrame:CGRectMake(xPositionImage, 0, self.view.frame.size.width, self.imageScrolView.frame.size.height)];
-//        [[FMSystemDataClass getSystemData] processImageDataWithURLString:imageLink andBlock:^(NSData *imageData) {
-//            if (self.view.window) {
-//                flatImageView.image = [UIImage imageWithData:imageData];
-//            }
-//        }];
         if ([self.flatImageArray count]<=1) {
             [self.infoScrollView addSubview:flatImageView];
         }
@@ -256,7 +251,7 @@
     self.infoFlatKey = [[NSMutableArray alloc] initWithObjects:@"Price",@"Address",@"MetroDistanceName",@"HouseTypeName",@"MetroName", nil];
  
     UIImage *addIMage = [UIImage imageNamed:@"footer-all.png"];
-    FMFloopView *footerView =[[FMFloopView alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height-addIMage.size.height, self.view.frame.size.width, addIMage.size.height) andTypeWindow:0];
+    FMFloopView *footerView =[[FMFloopView alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height-addIMage.size.height+5, self.view.frame.size.width, addIMage.size.height) andTypeWindow:typeView];
     [self.view addSubview:footerView];
 }
 
@@ -271,7 +266,7 @@
     [request1 setHTTPBody:[bodyString dataUsingEncoding:NSUTF8StringEncoding]];
 	NSData *responseData = [NSURLConnection sendSynchronousRequest:request1 returningResponse:nil error:nil];
 	NSString *htmlString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"FlatMania" message:@"Жалоба добавлена"
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"FlatMania" message:@"Спасибо, мы проверим это объявление вручную"
 													   delegate:self cancelButtonTitle:@"Хорошо" otherButtonTitles: nil];
 		[alert show];
         Jaloba=YES;
@@ -330,8 +325,13 @@
     switch (indexPath.row) {
         case 0:{ if ([[infoFlatDictionary objectForKey:@"Price"] isKindOfClass:[NSNull class]])
             textString = @"";
-            else
-            textString = [NSString stringWithFormat:@"%@ рублей в месяц",[infoFlatDictionary objectForKey:@"Price"]];
+        else{
+            NSNumberFormatter *formatter = [NSNumberFormatter new];
+            [formatter setUsesGroupingSeparator:YES];
+            [formatter setGroupingSize:3]; // this line is important!
+            [formatter setGroupingSeparator:@"\u00a0"];
+            textString =  [NSString stringWithFormat:@"%@ рублей в месяц",[formatter stringFromNumber:[NSNumber numberWithInteger:[[infoFlatDictionary objectForKey:@"Price"] integerValue]]]];
+        }
         imageName = @"detailsPrise.png";
         }
             break;
@@ -428,7 +428,10 @@
 #pragma mark  - navBarSelector
 
 -(void)backSelector{
-    [self.navigationController popViewController];
+    NSMutableDictionary *pushControllerDict = [[NSMutableDictionary alloc] init];
+   
+        [pushControllerDict setObject:[NSString stringWithFormat:@"%d",typeView] forKey:@"controller"];
+    [[NSNotificationCenter defaultCenter] postNotificationName:@"dfdf" object:self userInfo:pushControllerDict];
 }
 -(void)heartSelector {
     [[NSNotificationCenter defaultCenter] postNotificationName:FMAddActivityIndicator object:self userInfo:nil];

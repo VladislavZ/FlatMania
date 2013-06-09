@@ -65,8 +65,6 @@
         
         myButton.frame = CGRectMake(frame.size.width*3/4, 0, frame.size.width/4, image.size.height);
         [self addSubview:myButton];
-        
-     
     }
     return self;
 }
@@ -82,6 +80,10 @@
     if (button==favoriteButton)
            [pushControllerDict setObject:[NSString stringWithFormat:@"1"] forKey:@"controller"];
     [[NSNotificationCenter defaultCenter] postNotificationName:@"dfdf" object:self userInfo:pushControllerDict];
+}
+
+-(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+    
 }
 
 /*

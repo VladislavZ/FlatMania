@@ -36,6 +36,7 @@
     NSInteger endNumberFlat;
     BOOL loadFlag;
     NSInteger numberFlatAdd;
+    BOOL searchFlag;
    
 }
 @property (nonatomic,retain) NSMutableArray *flatArray;
@@ -56,9 +57,12 @@
         userDefaults = [NSUserDefaults standardUserDefaults];
         if (array==nil) {
                 self.flatArray = [self loadFlatList];
+            searchFlag =NO;
         }
-        else
+        else{
             flatArray=array;
+            searchFlag = YES;
+        }
     }
     return self;
 }
@@ -114,8 +118,7 @@
     }
 }
 
-- (void)viewDidLoad
-{
+- (void)viewDidLoad {
     [super viewDidLoad];
     [self report_memory];
     startNumberFlat = 0;
@@ -125,12 +128,39 @@
     ScreenIsLoaded = YES;
     searchState = NO;
     numberFlatAdd=0;
-//    [self clearCaches];
+    if ((searchFlag)&([self.flatArray count]==0)) {
+        self.scrollView.hidden = YES;
+        UILabel *searchNoLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, self.view.bounds.size.height/2-100, self.view.bounds.size.width, 20)];
+        searchNoLabel.text = @"Объявления не найдены";
+        searchNoLabel.textAlignment = NSTextAlignmentCenter;
+        searchNoLabel.textColor = [UIColor blackColor];
+        searchNoLabel.backgroundColor = [UIColor clearColor];
+        searchNoLabel.font = [UIFont systemFontOfSize:18];
+        [self.view addSubview:searchNoLabel];
+        UILabel *secondLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, self.view.bounds.size.height/2-60, self.view.bounds.size.width, 40)];
+        secondLabel.text = @"Попробуйте изменить условия поиска в настройках";
+        secondLabel.textAlignment = NSTextAlignmentCenter;
+        secondLabel.textColor = [[UIColor alloc] initWithRed:170/255.0f green:170/255.0f blue:170/255.0f alpha:1.0f
+                                 ];
+        secondLabel.numberOfLines = 2;
+        secondLabel.backgroundColor = [UIColor clearColor];
+        secondLabel.font = [UIFont systemFontOfSize:14];
+        [self.view addSubview:secondLabel];
+    }
     UIButton *searchButton = [UIButton buttonWithType:UIButtonTypeCustom];
     searchButton.frame = CGRectMake(0, 0, 60, 30);
     [searchButton addTarget:self action:@selector(searchSelector) forControlEvents:UIControlEventTouchUpInside];
     [searchButton setBackgroundImage:[UIImage imageNamed:@"search.png"] forState:UIControlStateNormal];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:searchButton];
+    
+    UIImage *settingImage = [UIImage imageNamed:@"settings.png"];
+    UIButton *settingButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    settingButton.frame = CGRectMake(0, 0, settingImage.size.width, settingImage.size.height);
+    [settingButton addTarget:self action:@selector(toggleMenu) forControlEvents:
+     UIControlEventTouchUpInside];
+    
+    [settingButton setBackgroundImage:settingImage forState:UIControlStateNormal];
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:settingButton];
 
     
     CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
@@ -168,13 +198,16 @@
     NSLog(@"%f",image.size.height);
     FMFloopView *footerView =[[FMFloopView alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height-image.size.height, self.view.frame.size.width, image.size.height) andTypeWindow:0];
     [self.view addSubview:footerView];
-    
-    
+}
+
+-(void)toggleMenu {
+    [[NSNotificationCenter defaultCenter] postNotificationName:FMMenuViewShow object:self userInfo:nil];
 }
 
 -(void)stopActivityIndicator {
     [[NSNotificationCenter defaultCenter] postNotificationName:FMRemoveActivityIndicator object:self userInfo:nil];
 }
+
 
 
 
@@ -191,12 +224,19 @@
 //    }
 //    else newString = imageString;
     NSString *imageLink = [NSString stringWithFormat:@"%@/%@/%@",imageUrl,[[self.flatArray objectAtIndex:number] objectForKey:@"Id"],imageString];
+    BOOL privat;
+    if ([[[self.flatArray objectAtIndex:number] objectForKey:@"IsPrivate"] isKindOfClass:[NSNull class]]) {
+        privat = NO;
+    }
+    else
+        privat = YES;
+    NSLog(@"%@",[[self.flatArray objectAtIndex:number] objectForKey:@"IsPrivate"]);
             FMFlatInfoView *flatView = [[FMFlatInfoView alloc]
                                         initWithFrame:CGRectMake(0, 400*number+10,
                                                                  self.scrollView.frame.size.width, 400)
                                         image:imageLink
                                         price:[[self.flatArray objectAtIndex:number] objectForKey:@"Price"]
-                                        privat:(BOOL)[[self.flatArray objectAtIndex:number] objectForKey:@"IsPrivate"]
+                                        privat:privat
                                         typeFlat:[[self.flatArray objectAtIndex:number] objectForKey:@"FlatTypeName" ]
                                         created:[[self.flatArray objectAtIndex:number] objectForKey:@"Created" ]
                                         metro:[[self.flatArray objectAtIndex:number] objectForKey:@"MetroName" ]];
@@ -217,15 +257,16 @@
     CGPoint location = [recognizer locationInView:[recognizer.view superview]];
     NSInteger numberFlat = (visibleRect.origin.y-location.y)/400;
     NSLog(@"number = %d",numberFlat);
-    FMSlideViewController *controller = [[FMAncouncementDatailViewController alloc] initWithNibName:@"FMAncouncementDatailViewController" bundle:nil andFlatDictionary:[self.flatArray objectAtIndex:numberFlat] andTypeDirection:NO];
-    [self.navigationController pushViewController:controller];
+    FMSlideViewController *controller = [[FMAncouncementDatailViewController alloc] initWithNibName:@"FMAncouncementDatailViewController" bundle:nil andFlatDictionary:[self.flatArray objectAtIndex:numberFlat] andTypeDirection:NO andTypeFooter:0];
+    NSMutableDictionary *pushControllerDict = [[NSMutableDictionary alloc] init];
+    [pushControllerDict setObject:controller forKey:@"controller"];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:FMDatailView object:self userInfo:pushControllerDict];
 }
 
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollsView {
     [refreshView dragMethod];
-
-    
 }
 
 - (void)scrollViewDidEndDragging:(UIScrollView *)scrollsView willDecelerate:(BOOL)decelerate {
@@ -286,19 +327,23 @@ NSString *bodyString = [NSString stringWithFormat:@"action=flatsgetfull&start=%d
     [refreshView changeArrow:scrollerView];
     if (updateFlag) {
         NSLog(@"flatArray count = %d",[self.flatArray count]);
+        if (!searchFlag) {
     if (numberImage==[self.flatArray count]-1) {
          updateFlag=!updateFlag;
          [[NSNotificationCenter defaultCenter] postNotificationName:FMAddActivityIndicator object:self userInfo:nil];
         [self performSelector:@selector(addFlatAfterScroll) withObject:nil afterDelay:0.1];
             }
+        }
     }
+}
+
+-(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+    
 }
 
 
 -(void)addFlatAfterScroll {
-   
     startNumberFlat+=countFlatAdd;
-    
     NSMutableArray *updatearray = [self loadFlatList];
     for (NSInteger k =0; k<[updatearray count]; k++) {
         [self.flatArray addObject:[updatearray objectAtIndex:k]];

@@ -76,6 +76,19 @@
     NSLog(@"%f",image.size.height);
     FMFloopView *footerView =[[FMFloopView alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height-image.size.height, self.view.frame.size.width, image.size.height) andTypeWindow:typeAutorize];
     [self.view addSubview:footerView];
+    
+    UIImage *settingImage = [UIImage imageNamed:@"settings.png"];
+    UIButton *settingButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    settingButton.frame = CGRectMake(0, 0, settingImage.size.width, settingImage.size.height);
+    [settingButton addTarget:self action:@selector(toggleMenu) forControlEvents:
+     UIControlEventTouchUpInside];
+    
+    [settingButton setBackgroundImage:settingImage forState:UIControlStateNormal];
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:settingButton];
+}
+
+-(void)toggleMenu {
+    [[NSNotificationCenter defaultCenter] postNotificationName:FMMenuViewShow object:self userInfo:nil];
 }
 
 -(void)removeKeyboard {

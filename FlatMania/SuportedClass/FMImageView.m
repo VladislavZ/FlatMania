@@ -11,11 +11,10 @@
 #import "UIButton+UIButton_withImag.h"
 
 @implementation FMImageView
-@synthesize image,ISsetImage;
+@synthesize image,ISsetImage,delegate;
 
 
-- (id)initWithFrame:(CGRect)frame
-{
+- (id)initWithFrame:(CGRect)frame {
     self = [super initWithFrame:frame];
     if (self) {
         // Initialization code
@@ -30,13 +29,12 @@
         UITapGestureRecognizer *gesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(selectImage:)];
         [imageView addGestureRecognizer:gesture];
         self.ISsetImage =NO;
-        
     }
     return self;
 }
 
-
 -(void)cancelSelector {
+    [delegate delateImage:imageView.image];
 imageView.image = [UIImage imageNamed:@"image-border.png"];
     [cancelButton removeFromSuperview];
     cancelButton = nil;
@@ -53,14 +51,5 @@ imageView.image = [UIImage imageNamed:@"image-border.png"];
         [self addSubview:cancelButton];
     }
 }
-
-/*
-// Only override drawRect: if you perform custom drawing.
-// An empty implementation adversely affects performance during animation.
-- (void)drawRect:(CGRect)rect
-{
-    // Drawing code
-}
-*/
 
 @end

@@ -10,6 +10,7 @@
 #import "FMDropDounMenu.h"
 #import "SBJson.h"
 #import "UIPopoverController+iPhone.h"
+#import "UIPopoverController+removeInnerShadow.h"
 
 @protocol FMSearchDelegate <NSObject>
 

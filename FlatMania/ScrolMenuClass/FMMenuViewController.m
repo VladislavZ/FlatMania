@@ -51,7 +51,7 @@
         self.imageNameArray2 = [NSArray arrayWithObjects:@"menu-sog.png",@"menu-qer.png",@"menu-3.png",@"menu-icons.png", nil];
         CGRect menuFrame = CGRectMake(0.0, 0.0, menuWidth, masterRect.size.height);
         CGRect searchFrame = CGRectMake(53, 0, self.view.frame.size.width-53, masterRect.size.height);
-        CGRect contentFrame = CGRectMake(0.0, 0.0, masterRect.size.width, masterRect.size.height);
+        CGRect contentFrame = CGRectMake(0.0, 0.0, masterRect.size.width, masterRect.size.height-[[UIApplication sharedApplication] statusBarFrame].size.height);
         
         
         
@@ -97,8 +97,17 @@
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(addActivityIndicatorMethod) name:FMAddActivityIndicator object:nil];
  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(removeActivityIndicator) name:FMRemoveActivityIndicator object:nil];
         [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(autorization) name:@"autorization" object:nil];
+                [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(toggleMenu) name:FMMenuViewShow object:nil];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(datailViewPush:) name:FMDatailView object:nil];
+        
     }
     return self;
+}
+
+-(void)datailViewPush:(NSNotification*)notification {
+     FMSlideViewController *datailController = [[notification userInfo] valueForKey:@"controller" ];
+    [self addViewController:datailController withTitle:datailController.title];
+    
 }
 
 -(void)autorization {
@@ -267,12 +276,14 @@
         self.searchView.hidden=YES;
         CGRect newFrame = CGRectOffset(self.contentView.frame, self.menuView.frame.size.width, 0.0);
         self.contentView.frame = newFrame;
+        self.menuTableView.userInteractionEnabled = YES;
     }
     else //Menu is shown
     {
         [menuTableView reloadData];
         CGRect newFrame = CGRectOffset(self.contentView.frame, -(self.menuView.frame.size.width), 0.0);
         self.contentView.frame = newFrame;
+        self.menuTableView.userInteractionEnabled = NO;
     }
     
     [UIView commitAnimations];
@@ -290,7 +301,7 @@
             navController.slideMenuController = self;
             navController.title = title;
             [self.contentView addSubview:navController.view];
-            [self presentModalViewController:navController animated:YES];
+            [self presentModalViewController:navController animated:NO];
         }
     }
     else {
@@ -430,8 +441,8 @@
         [userDefaults setObject:@"" forKey:@"fbID"];
         [userDefaults setObject:@"" forKey:@"vkID"];
         [userDefaults setObject:@"" forKey:@"phone"];
-        [userDefaults removeObjectForKey:@"ActiveMyAncountmentKey"];
-        [userDefaults removeObjectForKey:@"draftAncountmentKey"];
+        [userDefaults setObject:nil forKey:@"ActiveKey"];
+        [userDefaults setObject:nil forKey:@"draftKey"];
         [userDefaults setObject:nil forKey:@"LoginId"];
         [userDefaults setObject:nil forKey:@"favoritesKey"];
         [userDefaults objectForKey:@"favoritesKey"];

@@ -27,12 +27,6 @@
             imageView.layer.zPosition=1;
             [self addSubview:imageView];
         }];
-//        UIImageView *imageView = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, frame.size.width-2, 300)];
-//        imageView.image = image;
-//        imageView.layer.masksToBounds = YES;
-//        imageView.layer.cornerRadius=8;
-//        imageView.layer.zPosition=1;
-//        [self addSubview:imageView];
         
         UIImage *priceImage = [UIImage imageNamed:@"price.png"];
         UIImageView *priceImageView = [[UIImageView alloc] initWithFrame:CGRectMake(imageViewFrame.size.width-priceImage.size.width+2, imageViewFrame.origin.y+imageViewFrame.size.height-75, priceImage.size.width, priceImage.size.height)];
@@ -41,9 +35,15 @@
         [self addSubview:priceImageView];
          UIImage *istrueImage = [UIImage imageNamed:@"istrue.png"];
         UILabel *priceLabel = [[UILabel alloc] initWithFrame:CGRectMake(imageViewFrame.size.width-istrueImage.size.width+2, imageViewFrame.origin.y+imageViewFrame.size.height-68, istrueImage.size.width, 30)];
-        if (price == nil || [price isKindOfClass:[NSNull class]]) priceLabel.text = @"";
+        NSNumberFormatter *formatter = [NSNumberFormatter new];
+        [formatter setUsesGroupingSeparator:YES];
+        [formatter setGroupingSize:3]; // this line is important!
+        [formatter setGroupingSeparator:@"\u00a0"];
+        NSString *priceString;
+        if (price == nil || [price isKindOfClass:[NSNull class]]) priceString = @"";
        else
-        priceLabel.text =[NSString stringWithFormat:@"%@",price];
+        priceString =[NSString stringWithFormat:@"%@",price];
+        priceLabel.text = [formatter stringFromNumber:[NSNumber numberWithInteger:[priceString integerValue]]];
         priceLabel.layer.zPosition=3;
         priceLabel.textColor = [[UIColor alloc] initWithRed:240/255.0f green:248/255.0f blue:255/255.0f alpha:1.0f];
         priceLabel.backgroundColor = [UIColor clearColor];
@@ -74,7 +74,6 @@
         [self addSubview:clockImageView];
         UILabel *clockLabel = [[UILabel alloc] initWithFrame:CGRectMake(24+clockImageView.frame.size.width, imageViewFrame.origin.y+imageViewFrame.size.height+flatTypeLable.frame.size.height+6, 80, 15)];
         clockLabel.textColor = [UIColor grayColor];
-//        NSString * timeStampString =@"1304245000";
         NSTimeInterval _interval=[created doubleValue];
         NSDate *date = [NSDate dateWithTimeIntervalSince1970:_interval];
         NSDateFormatter *_formatter=[[NSDateFormatter alloc]init];
@@ -100,14 +99,5 @@
     }
     return self;
 }
-
-/*
-// Only override drawRect: if you perform custom drawing.
-// An empty implementation adversely affects performance during animation.
-- (void)drawRect:(CGRect)rect
-{
-    // Drawing code
-}
-*/
 
 @end

@@ -25,6 +25,7 @@
         
         [self addSubview:_borderImageView];
         [self addSubview:_arrowView];
+        //dfdfdgdfgf
         
     }
     return self;
@@ -71,7 +72,7 @@
         case UIPopoverArrowDirectionUp:
             _top += ARROW_HEIGHT;
             _height -= ARROW_HEIGHT;
-            _coordinate = ((self.frame.size.width / 2) + self.arrowOffset) - (ARROW_BASE/2);
+            _coordinate = ((_borderImageView.frame.size.width / 2)) - (ARROW_BASE/2);
             _arrowView.frame = CGRectMake(_coordinate, 0, ARROW_BASE, ARROW_HEIGHT);
             break;
             

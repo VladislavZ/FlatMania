@@ -15,9 +15,10 @@
 
 @interface FMAncouncementDatailViewController : FMSlideViewController<UITableViewDataSource,UITableViewDelegate,UIScrollViewDelegate,CLLocationManagerDelegate,UIPageViewControllerDelegate,UIPageViewControllerDataSource,MKReverseGeocoderDelegate> {
     BOOL heatButtonHidden;
+    int typeView;
     
 }
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil andFlatDictionary:(NSMutableDictionary*)flatDictionary andTypeDirection:(BOOL)direction;
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil andFlatDictionary:(NSMutableDictionary*)flatDictionary andTypeDirection:(BOOL)direction andTypeFooter:(int)type;
 @property (weak, nonatomic) IBOutlet UIScrollView *infoScrollView;
 @property (weak, nonatomic) IBOutlet UITableView *flatInfoTableView;
 @property (weak, nonatomic) IBOutlet UIImageView *toolbarIMageView;

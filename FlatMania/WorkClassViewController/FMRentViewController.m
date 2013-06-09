@@ -7,15 +7,7 @@
 //
 
 #import "FMRentViewController.h"
-#import "FMImageView.h"
-#import "FMDropDounMenu.h"
-#import "FMSystemDataClass.h"
-#import "FMAnnouncementViewController.h"
-#import "FMFloopView.h"
-#import "SBJson.h"
-#import "UIPopoverController+iPhone.h"
-#import "HDPopoverBAckgroundView.h"
-#import <AVFoundation/AVFoundation.h>
+
 
 #define dropDownDistance 55.0f
 #define NUMBERS_ONLY @"+1234567890"
@@ -63,8 +55,7 @@
 
 @synthesize flatObject,phoneLabel,nameLabel;
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
+- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
         // Custom initialization
@@ -72,8 +63,8 @@
     return self;
 }
 
-- (void)viewDidLoad
-{
+
+- (void)viewDidLoad {
     [super viewDidLoad];
     numberImageArrayAdd  =[[NSMutableArray alloc] init];
     userDefaults = [NSUserDefaults standardUserDefaults];
@@ -88,8 +79,7 @@
     self.flatObject = [[FMFlatObject alloc] init];
     
     self.view.backgroundColor = [[UIColor alloc] initWithRed:245/255.0f green:245/255.0f blue:245/255.0f alpha:1.0f];
-//navBarButton
-     self.title = @"Информация";
+    self.title = @"Информация";
     UIImage *imagePhoto = [UIImage imageNamed:@"photo.png"];
     UIButton *photoButton = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, imagePhoto.size.width/2, imagePhoto.size.height/2)];
     [photoButton setBackgroundImage:imagePhoto forState:UIControlStateNormal];
@@ -106,7 +96,6 @@
         NSString *nameString = [NSString stringWithFormat:@"%@ %@",[userDefaults objectForKey:@"firstName"],[userDefaults objectForKey:@"lastname"]];
         nameTextField = [[UITextField alloc] initWithFrame:CGRectMake(self.view.frame.size.width/2-dropMenuIMage.size.width/2, self.nameLabel.frame.origin.y, dropMenuIMage.size.width, 30)];
         nameTextField.delegate = self;
-//        nameTextField.keyboardType = UIKeyboardTypePhonePad;
         nameTextField.background = backgroundTextFieldImage;
         if (nameString.length>2)
             nameTextField.text = nameString;
@@ -144,6 +133,7 @@
     self.imageScrollView.contentSize = CGSizeMake((borderImage.size.width+15)*5, borderImage.size.height);
     for (NSInteger k=0; k<5; k++) {
         FMImageView *imageViw = [[FMImageView alloc] initWithFrame:CGRectMake(xPositionImage, 10, borderImage.size.width, borderImage.size.height)];
+        imageViw.delegate = self;
         imageViw.tag=k+1;
         [self.imageScrollView addSubview:imageViw];
         xPositionImage+=borderImage.size.width+15;
@@ -278,7 +268,6 @@
     
     UIButton *addAncountmentButton = [[UIButton alloc]initWithFrame:CGRectMake(20, privatLabel.frame.origin.y+dropDownDistance, self.mainScrollView.frame.size.width-40, 35)];
     [addAncountmentButton setBackgroundImage:[UIImage imageNamed:@"add-big.png"] forState:UIControlStateNormal];
-//    [addAncountmentButton setTitle:@"Разместить объявление" forState:UIControlStateNormal];
     [addAncountmentButton addTarget:self action:@selector(addSelector) forControlEvents:UIControlEventTouchUpInside];
     [self.mainScrollView addSubview:addAncountmentButton];
     
@@ -294,6 +283,17 @@
 }
 
 
+-(void)delateImage:(UIImage *)image {
+    NSLog(@"%d",[self.flatObject.imageFlatArray count]);
+    [self.flatObject.imageFlatArray removeObject:image];
+    
+    if (self.flatObject.mainImage==image) {
+        self.flatObject.mainImage=nil;
+    }
+    NSLog(@"%d",[self.flatObject.imageFlatArray count]);
+}
+
+
 -(void)removeKeyboard {
   [selectTextField resignFirstResponder];
 }
@@ -302,7 +302,6 @@
 -(void)selectImage:(UITapGestureRecognizer*)gesture {
     CGPoint location = [gesture locationInView:[gesture.view superview]];
     NSInteger numberFlat = (visibleRect.origin.x+location.x)/(borderImage.size.width+15);
-    NSLog(@"numberSelctImage = %d",numberFlat);
     NumberImage = numberFlat;
     [numberImageArrayAdd addObject:[NSNumber numberWithInteger:numberFlat]];
     selectImagesView = (FMImageView*)[self.imageScrollView viewWithTag:NumberImage+1];
@@ -316,10 +315,7 @@
         imagePickController.toolbarHidden = YES;
         imagePickController.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType: UIImagePickerControllerSourceTypePhotoLibrary];
         self.navigationController.navigationBar.frame = CGRectMake(0, -60, 320, 44);
-        self.view.frame = CGRectMake(0, -44, self.view.frame.size.width, self.view.frame.size.height+44);
-        [self addChildViewController:imagePickController];
-        //    imagePickController.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height-20);
-    [self.view addSubview:imagePickController.view];
+        [self presentModalViewController:imagePickController animated:NO];
     }
     else {
         NSLog(@"mainNumberImage = %d    numberFlat = %d",mainNumberImage,numberFlat);
@@ -334,28 +330,13 @@
         [selectImagesView.layer setBorderWidth:3.0f];
         [flatObject.imageFlatArray removeObject:selectImagesView.image];
         flatObject.mainImage = selectImagesView.image;
-        NSLog(@"count image = %d",[flatObject.imageFlatArray count]);
-        
     }
 }
+
 
 -(void)liberalSelector:(UIButton*)button {
-    if (!isPrivat) {
-    [button setBackgroundImage:[UIImage imageNamed:@"check-active.png"] forState:UIControlStateNormal];
-        flatObject.privat = YES;
-        isPrivat=YES;
-    }
-    else{
-        [button setBackgroundImage:[UIImage imageNamed:@"check.png"] forState:UIControlStateNormal];
-        flatObject.privat = NO;
-        isPrivat = NO;
-    }
-}
-
-
--(void)privatSelector:(UIButton*)button {
     if (!isLiberal) {
-        [button setBackgroundImage:[UIImage imageNamed:@"check-active.png"] forState:UIControlStateNormal];
+    [button setBackgroundImage:[UIImage imageNamed:@"check-active.png"] forState:UIControlStateNormal];
         flatObject.liberal = YES;
         isLiberal=YES;
     }
@@ -363,6 +344,20 @@
         [button setBackgroundImage:[UIImage imageNamed:@"check.png"] forState:UIControlStateNormal];
         flatObject.liberal = NO;
         isLiberal = NO;
+    }
+}
+
+
+-(void)privatSelector:(UIButton*)button {
+    if (!isPrivat) {
+        [button setBackgroundImage:[UIImage imageNamed:@"check-active.png"] forState:UIControlStateNormal];
+        flatObject.privat = YES;
+        isPrivat=YES;
+    }
+    else{
+        [button setBackgroundImage:[UIImage imageNamed:@"check.png"] forState:UIControlStateNormal];
+        flatObject.privat = NO;
+        isPrivat = NO;
     }
 }
 
@@ -390,47 +385,39 @@
     [[[popoverController contentViewController] view] setBackgroundColor:[UIColor clearColor]];
     CGRect frame = selectButton.frame;
         frame.origin.y -= self.mainScrollView.bounds.origin.y;
-        [popoverController presentPopoverFromRect:frame inView:self.view permittedArrowDirections:UIPopoverArrowDirectionUp animated:YES];
+    [popoverController presentPopoverWithoutInnerShadowFromRect:frame inView:self.view permittedArrowDirections:UIPopoverArrowDirectionUp animated:YES];
+//        [popoverController presentPopoverFromRect:frame inView:self.view permittedArrowDirections:UIPopoverArrowDirectionUp animated:YES];
      dropMenuView.delegate =self;
-//    NSArray* subviews = ((UIView*)[popoverController.contentViewController.view.superview.superview.superview.subviews objectAtIndex:0]).subviews;
-//    for(UIView *subview in subviews){
-//        [subview removeFromSuperview];
-//    }
-//    [[[popoverController contentViewController] view] setBackgroundColor:[UIColor blackColor]];
 }
 
 
 -(void)photoSelector {
     for (NSInteger i=0;i<5; i++) {
         BOOL ok = NO;
-    for (NSInteger k=0; k<[numberImageArrayAdd count]; k++) {
-        if (i==[[numberImageArrayAdd objectAtIndex:k] integerValue]) {
-            ok=YES;
+        for (NSInteger k=0; k<[numberImageArrayAdd count]; k++) {
+            if (i==[[numberImageArrayAdd objectAtIndex:k] integerValue]) {
+                ok=YES;
+            }
         }
-    }
         if (!ok){ NumberImage=i; break;}
     }
     [numberImageArrayAdd addObject:[NSNumber numberWithInteger:NumberImage]];
     selectImagesView = (FMImageView*)[self.imageScrollView viewWithTag:NumberImage+1];
     numberPhotoAdd++;
- imagePickerPhoto= [[UIImagePickerController alloc] init];
-    
+    imagePickerPhoto= [[UIImagePickerController alloc] init];
     imagePickerPhoto.delegate = self;
-//    imagePickerPhoto.navigationBarHidden = YES;
-//    imagePickerPhoto.toolbarHidden = YES;
+    
     imagePickerPhoto.sourceType =
     UIImagePickerControllerSourceTypeCamera;
     
     imagePickerPhoto.mediaTypes = [UIImagePickerController availableMediaTypesForSourceType: UIImagePickerControllerSourceTypeCamera];
-     self.navigationController.navigationBar.frame = CGRectMake(0, -60, 320, 44);
- self.view.frame = CGRectMake(0, -60, self.view.frame.size.width, self.view.frame.size.height+44);
+    self.navigationController.navigationBar.frame = CGRectMake(0, -60, 320, 44);
     imagePickerPhoto.allowsEditing = YES;
-    [self.view addSubview:imagePickerPhoto.view];
-    [self addChildViewController:imagePickerPhoto];
-   }
+    [self presentModalViewController:imagePickerPhoto animated:NO];
+}
 
-- (void)didReceiveMemoryWarning
-{
+
+- (void)didReceiveMemoryWarning {
      [[NSURLCache sharedURLCache] removeAllCachedResponses];
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
@@ -455,7 +442,6 @@
         lastName = [nameArray objectAtIndex:1];
         [[NSNotificationCenter defaultCenter] postNotificationName:FMAddActivityIndicator object:self userInfo:nil];
         [self performSelector:@selector(updateUserInfo) withObject:nil afterDelay:0.2];
-    
     }
 }
 
@@ -467,29 +453,21 @@
 	NSMutableURLRequest *request1 = [[NSMutableURLRequest alloc]initWithURL:url];
 	[request1 setHTTPMethod: @"POST"];
     [request1 setHTTPBody:[bodyString dataUsingEncoding:NSUTF8StringEncoding]];
-	////
 	[NSURLConnection sendSynchronousRequest:request1 returningResponse:nil error:nil];
-//	NSString *htmlString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
-//	SBJsonParser *parser = [[SBJsonParser alloc] init];
-//	NSMutableDictionary *loadDict = [parser objectWithString:htmlString error:nil];
     [userDefaults setObject:phoneNumber forKey:@"phone"];
     [[NSNotificationCenter defaultCenter] postNotificationName:FMRemoveActivityIndicator object:self userInfo:nil];
-
-    
-    
-
 }
+
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField {
     [textField resignFirstResponder];
-
     return NO;
 }
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string  {
     BOOL value = YES;
     if ((textField==priceTextField)||(textField==phoneNumberTextField)) {
-    NSCharacterSet *cs = [[NSCharacterSet characterSetWithCharactersInString:NUMBERS_ONLY] invertedSet];
+        NSCharacterSet *cs = [[NSCharacterSet characterSetWithCharactersInString:NUMBERS_ONLY] invertedSet];
     NSString *filtered = [[string componentsSeparatedByCharactersInSet:cs] componentsJoinedByString:@""];
         value = [string isEqualToString:filtered];
     }
@@ -513,17 +491,13 @@
     if (dropMenuView) {
         [self removeDropMenu];
     }
-   
 }
 
 - (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController{
     [selectButton setBackgroundImage:[UIImage imageNamed:@"add-bg-items.png"] forState:UIControlStateNormal];
-//    popoverController = nil;
 }
 
 -(void)removeDropMenu {
-
-    
     [dropMenuView removeFromSuperview];
     dropMenuView = nil;
 }
@@ -534,6 +508,8 @@
     visibleRect.origin = scrollView.contentOffset;
     visibleRect.size = scrollView.bounds.size;
 }
+
+
 -(void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
     visibleRect.origin = scrollView.contentOffset;
     visibleRect.size = scrollView.bounds.size;
@@ -541,26 +517,16 @@
 
 #pragma mark - UIImagePickerControllerDelegate
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
-    [imagePickController.view removeFromSuperview];
+    [picker dismissModalViewControllerAnimated:NO];
+    NSLog(@"%d",[numberImageArrayAdd count]);
+    [numberImageArrayAdd removeObject:[NSNumber numberWithInteger:NumberImage]];
     imagePickController= nil;
-    [imagePickerPhoto.view removeFromSuperview];
     imagePickerPhoto = nil;
-     self.navigationController.navigationBar.frame = CGRectMake(0, 0, 320, 44);
-     self.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height-44);
+    self.navigationController.navigationBar.frame = CGRectMake(0, 0, 320, 44);
 }
 
-//- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingImage:(UIImage *)image editingInfo:(NSDictionary *)editingInfo {
-//    FMImageView *imagesView = (FMImageView*)[self.imageScrollView viewWithTag:3];
-//    imagesView.image = image;
-//    self.navigationController.navigationBar.frame = CGRectMake(0, 0, 320, 44);
-//    self.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height-44);
-//    [imagePickController.view removeFromSuperview];
-//    imagePickController= nil;
-//    
-//}
+
 - (UIImage *)fixrotation:(UIImage *)image{
-    
-    
     if (image.imageOrientation == UIImageOrientationUp) return image;
     CGAffineTransform transform = CGAffineTransformIdentity;
     
@@ -636,6 +602,7 @@
 }
 
 -(void) imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
+    [picker dismissModalViewControllerAnimated:NO];
      UIImage * pickedImage = [info objectForKey:UIImagePickerControllerOriginalImage];
 
     imageUpload = [self fixrotation:pickedImage];
@@ -646,21 +613,7 @@
         flatObject.mainImage = selectImagesView.image;
     }
     else
-    [flatObject.imageFlatArray addObject:imageUpload];
-    self.navigationController.navigationBar.frame = CGRectMake(0, 0, 320, 44);
-    self.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height-44);
-    [[self.childViewControllers lastObject] removeFromParentViewController];
-//    if ([self.flatObject.imageFlatArray count]>=5) {
-//        FMImageView *imageViw = [[FMImageView alloc] initWithFrame:CGRectMake(xPositionImage, 10, 150, 150)];
-//        imageViw.tag=[self.flatObject.imageFlatArray count]+1;
-//        [self.imageScrollView addSubview:imageViw];
-//        xPositionImage+=imageViw.frame.size.width+15;
-//        self.imageScrollView.contentSize = CGSizeMake(160*([self.flatObject.imageFlatArray count]+1), 150);
-//    }
-    [imagePickerPhoto.view removeFromSuperview];
-    imagePickerPhoto = nil;
-    [imagePickController.view removeFromSuperview];
-    imagePickController= nil;
+    [flatObject.imageFlatArray addObject:selectImagesView.image];
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 
@@ -738,14 +691,9 @@
        [[NSNotificationCenter defaultCenter] postNotificationName:FMAddActivityIndicator object:self userInfo:nil];
 
     [self performSelector:@selector(postFlat) withObject:nil afterDelay:0.5];
-//    [self postFlat];
-
-   
 }
 
 -(void)postFlat{
-    
-   
     NSURL *url = [NSURL URLWithString:serverUrl];
 	NSString *bodyString = [NSString stringWithFormat:@"action=flatupdate&userid=%@&flattypeid=%d&housetypeid=%d&complaint=1&floor=%d&floortotal=%d&metroid=%d&metrodistanceid=%d&address=%@&price=%@&status=1&isgood=%d&isprivate=%d",[userDefaults objectForKey:@"LoginId"],flatObject.typeFlatID,flatObject.typeHouseID,flatObject.flatFloor,flatObject.numberFloor,flatObject.metroID,flatObject.metrodistanceID,flatObject.adress,flatObject.price,flatObject.liberal,flatObject.privat];
 	NSMutableURLRequest *request1 = [[NSMutableURLRequest alloc]initWithURL:url];
@@ -770,9 +718,12 @@
     for (NSInteger k=0; k<[self.flatObject.imageFlatArray count]; k++) {
         [self loadImageToflatid:[[jsonDictionary objectForKey:@"id"] integerValue] andImage:[self.flatObject.imageFlatArray objectAtIndex:k] andType:0];
     }
+    if (flatObject.mainImage!=nil) {
     [self loadImageToflatid:[[jsonDictionary objectForKey:@"id"] integerValue] andImage:flatObject.mainImage andType:1];
+    }
     [[NSNotificationCenter defaultCenter] postNotificationName:FMRemoveActivityIndicator object:self userInfo:nil];
 }
+
 
 -(void)loadImageToflatid:(NSInteger)flatId andImage:(UIImage*)addImage andType:(BOOL)mainType {
     NSURL *url = [NSURL URLWithString:serverUrl];    
@@ -780,8 +731,6 @@
     NSString *boundary = @"---------------------------14737809831466499882746641449";
     NSString *contentType = [NSString stringWithFormat:@"multipart/form-data; boundary=%@", boundary];
     [request1 addValue:contentType forHTTPHeaderField:@"Content-Type"];
-    
-    
     
     NSMutableData *body = [NSMutableData data];
     // Text parameter1
@@ -824,8 +773,6 @@
     [request1 setHTTPBody:body];
     [request1 setHTTPMethod: @"POST"];
     [NSURLConnection sendSynchronousRequest:request1 returningResponse:nil error:nil];
-//	NSString *htmlString = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
-
     }
 
 - (void)viewDidUnload {

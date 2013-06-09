@@ -95,8 +95,10 @@
 	//UIImageView* imageView = [[[UIImageView alloc] initWithImage:[UIImage imageWithData:data]] autorelease];
 	
 	UIImageView* imageView = [[[UIImageView alloc] initWithFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)]autorelease];
-	imageView.image=[UIImage imageWithData:data];
-	//imageView.frame=CGRectMake(0, 0, self.bounds.size.width, self.bounds.size.height);
+    UIImage *loadImage = [UIImage imageWithData:data];
+    
+	imageView.image=loadImage;
+	imageView.frame=CGRectMake(0, self.bounds.size.height/2-(loadImage.size.height*self.bounds.size.width)/(2*loadImage.size.width), self.bounds.size.width, (loadImage.size.height*self.bounds.size.width)/loadImage.size.width);
 	
 	//NSLog(@"ImageIvew frame is: %f High , %f Long",imageView.frame.size.height,imageView.frame.size.width);
 	//make sizing choices based on your needs, experiment with these. maybe not all the calls below are needed.

@@ -13,6 +13,7 @@
 @interface FMFavoriteViewController (){
     NSInteger favoriteFlatCount;
     UITableView *favoriteTableView;
+    NSMutableArray *imageArray;
 }
 
 
@@ -34,8 +35,35 @@
             NSData *data = [userDefaults objectForKey:@"favoritesKey"];
             NSArray *arr = [NSKeyedUnarchiver unarchiveObjectWithData:data];
             self.dataArray = [[NSMutableArray alloc] initWithArray:arr];
-     
-       
+            imageArray = [[NSMutableArray alloc] init];
+            NSInteger numberinsert = 45;
+            for (NSInteger k =0; k<[self.dataArray count];k++) {
+            NSString *imageString;
+            if ([[dataArray objectAtIndex:k] objectForKey:@"ImageLink"]!=nil) {
+                imageString = [[dataArray objectAtIndex:k] objectForKey:@"ImageLink"];
+            }
+            
+            NSString *newString;
+            if (![imageString isEqual:NULL]) {
+                NSMutableString* mstr2 = [imageString mutableCopy];
+                [mstr2 insertString:@"-prv" atIndex:numberinsert];
+                newString= mstr2;
+            }
+            else newString = imageString;
+            NSString *imageStringurl = [NSString stringWithFormat:@"%@/%@/%@",imageUrl,[[dataArray objectAtIndex:k] objectForKey:@"Id"],newString];
+                NSData *data = [NSData dataWithContentsOfURL:[NSURL URLWithString:imageStringurl]];
+                UIImage *image = [UIImage imageWithData:data];
+//            [[FMSystemDataClass getSystemData] processImageDataWithURLString:imageStringurl andBlock:^(NSData *imageData) {
+//                    UIImage *imageFlat = [UIImage imageWithData:imageData];
+                if (image!=nil)
+                [imageArray addObject:image];
+                else {
+                    [self.dataArray removeObjectAtIndex:k];
+                    k =k-1;
+                }
+                
+//            }];
+            }
         }
         else
             self.dataArray = nil;
@@ -43,6 +71,7 @@
     }
     return self;
 }
+
 
 //-(NSMutableArray*)updateFavorite:(NSDictionary*)flatObject {
 ////    BOOL value;
@@ -78,8 +107,18 @@
     self.view.backgroundColor = [[UIColor alloc] initWithRed:240/255.0f green:240/255.0f blue:240/255.0f alpha:1.0f];
     CGRect statusBarFrame = [[UIApplication sharedApplication] statusBarFrame];
     CGRect masterRect = [[UIScreen mainScreen] bounds];
-    self.view.frame = CGRectMake(0, 0, masterRect.size.width, masterRect.size.height-44-statusBarFrame.size.height);
+    self.view.frame = CGRectMake(0, -statusBarFrame.size.height, masterRect.size.width, masterRect.size.height-44-statusBarFrame.size.height);
     self.title = @"Избранное";
+    UIImage *settingImage = [UIImage imageNamed:@"settings.png"];
+    UIButton *settingButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    settingButton.frame = CGRectMake(0, 0, settingImage.size.width, settingImage.size.height);
+    [settingButton addTarget:self action:@selector(toggleMenu) forControlEvents:
+     UIControlEventTouchUpInside];
+    
+    [settingButton setBackgroundImage:settingImage forState:UIControlStateNormal];
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:settingButton];
+
+    
     UIImage *flooperImage = [UIImage imageNamed:@"footer-add.png"];
     if (favoriteFlatCount!=0) {
         textLabelsOne.hidden=YES;
@@ -94,6 +133,10 @@
     
     FMFloopView *footerView =[[FMFloopView alloc] initWithFrame:CGRectMake(0, self.view.frame.size.height-flooperImage.size.height, self.view.frame.size.width, flooperImage.size.height) andTypeWindow:1];
     [self.view addSubview:footerView];
+}
+
+-(void)toggleMenu {
+    [[NSNotificationCenter defaultCenter] postNotificationName:FMMenuViewShow object:self userInfo:nil];
 }
 
 
@@ -114,8 +157,12 @@
 }
 
 -(void)pushDatailControllerWithDictionary:(NSMutableDictionary*)dictionary {
-    UIViewController *controller = [[FMAncouncementDatailViewController alloc] initWithNibName:@"FMAncouncementDatailViewController" bundle:nil andFlatDictionary:dictionary andTypeDirection:YES];
-    [self.navigationController pushViewController:controller];
+    UIViewController *controller = [[FMAncouncementDatailViewController alloc] initWithNibName:@"FMAncouncementDatailViewController" bundle:nil andFlatDictionary:dictionary andTypeDirection:YES andTypeFooter:1];
+    NSMutableDictionary *pushControllerDict = [[NSMutableDictionary alloc] init];
+    [pushControllerDict setObject:controller forKey:@"controller"];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:FMDatailView object:self userInfo:pushControllerDict];
+//    [self.navigationController pushViewController:controller];
 }
 
 -(UITableViewCell*)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -152,13 +199,15 @@
             newString= mstr2;
         }
         else newString = imageString;
-        NSString *imageStringurl = [NSString stringWithFormat:@"%@/%@/%@",imageUrl,[[dataArray objectAtIndex:indexPath.row] objectForKey:@"Id"],newString];
-        [[FMSystemDataClass getSystemData] processImageDataWithURLString:imageStringurl andBlock:^(NSData *imageData) {
-            if (cell.contentView.window) {
-                imageView.image = [UIImage imageWithData:imageData];
-            }
-            
-        }];
+//        NSString *imageStringurl = [NSString stringWithFormat:@"%@/%@/%@",imageUrl,[[dataArray objectAtIndex:indexPath.row] objectForKey:@"Id"],newString];
+//        [[FMSystemDataClass getSystemData] processImageDataWithURLString:imageStringurl andBlock:^(NSData *imageData) {
+//            if (cell.contentView.window) {
+//                UIImage *imageFlat = [UIImage imageWithData:imageData];
+//                imageView.image = imageFlat;
+//            }
+//            
+//        }];
+        imageView.image = [imageArray objectAtIndex:indexPath.row];
         
         UILabel *timesLabel = [[UILabel alloc] initWithFrame:CGRectMake(105, 50, 70, 15)];
         timesLabel.font = [UIFont systemFontOfSize:12];

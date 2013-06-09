@@ -30,52 +30,50 @@
     if (self) {
         userDefaults = [NSUserDefaults standardUserDefaults];
         if ([userDefaults objectForKey:@"LoginId"]) {
-            if (![userDefaults objectForKey:@"ActiveMyAncountmentKey"]) {
+            NSLog(@"log = %@",[userDefaults objectForKey:@"LoginId"]);
+            if (![userDefaults objectForKey:@"ActiveKey"]) {
             self.arrayActive = [self getListFlatfromStatus:1];
                 if ([self.arrayActive count]!=0) {
-            NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self.arrayActive];
-            [userDefaults setObject:data forKey:@"ActiveMyAncountmentKey"];
+                    NSData *data = [NSKeyedArchiver archivedDataWithRootObject:self.arrayActive];
+                    [userDefaults setObject:data forKey:@"ActiveKey"];
                 }
         }
-        else{
-            NSData *data = [userDefaults objectForKey:@"ActiveMyAncountmentKey"];
-            NSArray *arr = [NSKeyedUnarchiver unarchiveObjectWithData:data];
+            else{
+                NSData *data = [userDefaults objectForKey:@"ActiveKey"];
+                NSArray *arr = [NSKeyedUnarchiver unarchiveObjectWithData:data];
             self.arrayActive = [[NSMutableArray alloc] initWithArray:arr];
-        }
-        if (![userDefaults objectForKey:@"draftAncountmentKey"]) {
-            self.arrayDraf = [self getListFlatfromStatus:2];
-            if ([self.arrayDraf count]!=0) {
-            NSData *dataDraf = [NSKeyedArchiver archivedDataWithRootObject:self.arrayDraf];
-            [userDefaults setObject:dataDraf forKey:@"draftAncountmentKey"];
             }
-        }
-        else{
-            NSData *dataDraf = [userDefaults objectForKey:@"draftAncountmentKey"];
-            NSArray *arr = [NSKeyedUnarchiver unarchiveObjectWithData:dataDraf];
-            self.arrayDraf = [[NSMutableArray alloc] initWithArray:arr];
+            if (![userDefaults objectForKey:@"draftKey"]) {
+                self.arrayDraf = [self getListFlatfromStatus:2];
+                if ([self.arrayDraf count]!=0) {
+                    NSData *dataDraf = [NSKeyedArchiver archivedDataWithRootObject:self.arrayDraf];
+            [userDefaults setObject:dataDraf forKey:@"draftKey"];
+            }
+            }
+            else{
+                NSData *dataDraf = [userDefaults objectForKey:@"draftKey"];
+                NSArray *arr = [NSKeyedUnarchiver unarchiveObjectWithData:dataDraf];
+                self.arrayDraf = [[NSMutableArray alloc] initWithArray:arr];
         }
         }
         else {
-    self.arrayActive = nil;
+            self.arrayActive = nil;
             self.arrayDraf = nil;
         }
-        
-        
     }
     return self;
 }
 
-- (void)viewDidLoad
-{
+
+- (void)viewDidLoad {
     [super viewDidLoad];
     if ([self.arrayActive count]==0&[self.arrayDraf count]==0) {
         self.notView.hidden = NO;
+        [userDefaults setObject:nil forKey:@"ActiveKey"];
+        [userDefaults setObject:nil forKey:@"draftKey"];
     }
-    else{
+    else
         self.notView.hidden=YES;
-        [userDefaults removeObjectForKey:@"ActiveMyAncountmentKey"];
-        [userDefaults removeObjectForKey:@"draftAncountmentKey"];
-    }
     
     image = [UIImage imageNamed:@"bg-my-active-draft.png"];
     self.view.backgroundColor = [[UIColor alloc] initWithRed:245/255.0f green:245/255.0f blue:244/255.0F alpha:1.0f];
@@ -89,7 +87,16 @@
     addButton.frame = CGRectMake(0, 0, addImage.size.width, addImage.size.height);
     self.myFlatTableView.backgroundColor = [UIColor clearColor];
     self.myFlatTableView.backgroundView = nil;
-   
+    
+    UIImage *settingImage = [UIImage imageNamed:@"settings.png"];
+    UIButton *settingButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    settingButton.frame = CGRectMake(0, 0, settingImage.size.width, settingImage.size.height);
+    [settingButton addTarget:self action:@selector(toggleMenu) forControlEvents:
+     UIControlEventTouchUpInside];
+    
+    [settingButton setBackgroundImage:settingImage forState:UIControlStateNormal];
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:settingButton];
+    
     [addButton setBackgroundImage:[UIImage imageNamed:@"add.png"] forState:UIControlStateNormal];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithCustomView:addButton];
     UIImage *flooperImage = [UIImage imageNamed:@"footer-add.png"];
@@ -104,19 +111,23 @@
         refreshView.delegate = self;
         [self.myFlatTableView addSubview:refreshView];
     }
-//    [self.myFlatTableView addGestureRecognizer:swipeGesture];
+}
+
+
+-(void)toggleMenu {
+    [[NSNotificationCenter defaultCenter] postNotificationName:FMMenuViewShow object:self userInfo:nil];
 }
 
 #pragma mark -refreshView Delegate
 -(void)updateDatePulldown{
     self.arrayActive = [self getListFlatfromStatus:1];
     NSData *dataActive = [NSKeyedArchiver archivedDataWithRootObject:self.arrayActive];
-    [userDefaults setObject:dataActive forKey:@"ActiveMyAncountmentKey"];
+    [userDefaults setObject:dataActive forKey:@"ActiveKey"];
     dataActive = nil;
     
     self.arrayDraf = [self getListFlatfromStatus:2];
     NSData *dataDraf = [NSKeyedArchiver archivedDataWithRootObject:self.arrayDraf];
-    [userDefaults setObject:dataDraf forKey:@"draftAncountmentKey"];
+    [userDefaults setObject:dataDraf forKey:@"draftKey"];
     [self.myFlatTableView reloadData];
 }
 
@@ -135,10 +146,10 @@
 
 
 -(void)moveSelector:(UIGestureRecognizer*)gesture {
-   CGPoint point = [gesture locationInView:self.myFlatTableView];
+    CGPoint point = [gesture locationInView:self.myFlatTableView];
  
     if (point.x<50) {
-
+        
         [[NSNotificationCenter defaultCenter] postNotificationName:FMCallMoveMethod object:self userInfo:nil];
     }else{
         NSIndexPath *swipedIndexPath = [self.myFlatTableView indexPathForRowAtPoint:point];
@@ -223,7 +234,7 @@
     UILabel *tittleHeaderLabel = [[UILabel alloc] initWithFrame:CGRectMake(15, 0, self.myFlatTableView.bounds.size.width, image.size.height)];
     tittleHeaderLabel.backgroundColor = [UIColor clearColor];
     tittleHeaderLabel.textColor = [[UIColor alloc] initWithRed:170/255.0f green:170/255.0f blue:170/255.0f alpha:1.0f
-                ];
+                                   ];
     tittleHeaderLabel.font = [UIFont systemFontOfSize:14];
     tittleHeaderLabel.text = [self tableView:tableView titleForHeaderInSection:section];
     [headerView addSubview:tittleHeaderLabel];
@@ -247,8 +258,12 @@
 }
 
 -(void)pushDatailControllerWithDictionary:(NSMutableDictionary*)dictionary {
-    UIViewController *controller = [[FMAncouncementDatailViewController alloc] initWithNibName:@"FMAncouncementDatailViewController" bundle:nil andFlatDictionary:dictionary andTypeDirection:NO];
-    [self.navigationController pushViewController:controller];
+    UIViewController *controller = [[FMAncouncementDatailViewController alloc] initWithNibName:@"FMAncouncementDatailViewController" bundle:nil andFlatDictionary:dictionary andTypeDirection:NO andTypeFooter:3];
+    NSMutableDictionary *pushControllerDict = [[NSMutableDictionary alloc] init];
+    [pushControllerDict setObject:controller forKey:@"controller"];
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:FMDatailView object:self userInfo:pushControllerDict];
+    //    [self.navigationController pushViewController:controller];
 }
 
 -(UITableViewCell*)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -279,9 +294,6 @@
         imageView.layer.masksToBounds = YES;
         imageView.layer.cornerRadius=8;
         [cell.contentView addSubview:imageView];
-      
-        
-
         
         UILabel *timesLabel = [[UILabel alloc] initWithFrame:CGRectMake(105, 50, 70, 15)];
         timesLabel.font = [UIFont systemFontOfSize:12];
@@ -374,7 +386,7 @@
         case 0: {
             [self.arrayDraf addObject:bufer];
             NSData *dataDraf = [NSKeyedArchiver archivedDataWithRootObject:self.arrayDraf];
-            [userDefaults setObject:dataDraf forKey:@"draftAncountmentKey"];
+            [userDefaults setObject:dataDraf forKey:@"draftKey"];
         }
             break;
         default:
@@ -382,11 +394,12 @@
     }
     if ([self.arrayActive count]==0&[self.arrayDraf count]==0) {
         self.notView.hidden = NO;
+        [userDefaults removeObjectForKey:@"ActiveKey"];
+        [userDefaults removeObjectForKey:@"draftKey"];
     }
     else{
         self.notView.hidden=YES;
-        [userDefaults removeObjectForKey:@"ActiveMyAncountmentKey"];
-        [userDefaults removeObjectForKey:@"draftAncountmentKey"];
+        
 
     }
 [self.myFlatTableView reloadData];
@@ -399,11 +412,13 @@
             [self updateFlatStatus:indexPath.section+2 byFlatId:[[bufer objectForKey:@"Id"] integerValue] ];
             [self.arrayActive removeObjectAtIndex:indexPath.row];
             NSData *activeData = [NSKeyedArchiver archivedDataWithRootObject:self.arrayActive];
-            [userDefaults setObject:activeData forKey:@"ActiveMyAncountmentKey"];
+            [userDefaults setObject:activeData forKey:@"ActiveKey"];
         }
             break;
         case 1: {bufer = [self.arrayDraf objectAtIndex:indexPath.row];
             [self.arrayDraf removeObjectAtIndex:indexPath.row];
+            NSData *draftData = [NSKeyedArchiver archivedDataWithRootObject:self.arrayDraf];
+            [userDefaults setObject:draftData forKey:@"draftKey"];
             [self delateFlatById:[[bufer objectForKey:@"Id"] integerValue]];
         }
             break;
@@ -415,11 +430,13 @@
 -(void)delateFlatById:(NSInteger)flatId {
     NSURL *url = [NSURL URLWithString:serverUrl];
     NSString *bodyString = [NSString stringWithFormat:@"action=flatdelete&id=%d",flatId];
-	NSMutableURLRequest *request1 = [[NSMutableURLRequest alloc]initWithURL:url];
+	NSMutableURLRequest *request1 = [[NSMutableURLRequest alloc]initWithURL:url cachePolicy:NSURLCacheStorageAllowed timeoutInterval:60.0f];
 	[request1 setHTTPMethod: @"POST"];
     [request1 setHTTPBody:[bodyString dataUsingEncoding:NSUTF8StringEncoding]];
-	[NSURLConnection sendSynchronousRequest:request1 returningResponse:nil error:nil];
-    [[NSNotificationCenter defaultCenter] postNotificationName:FMRemoveActivityIndicator object:self userInfo:nil];
+	     NSData *respondData = [NSURLConnection sendSynchronousRequest:request1 returningResponse:nil error:nil];
+    NSString *htmlString = [[NSString alloc] initWithData:respondData encoding:NSUTF8StringEncoding];
+    
+[[NSNotificationCenter defaultCenter] postNotificationName:FMRemoveActivityIndicator object:self userInfo:nil];
 }
 
 -(void)updateFlatStatus:(NSInteger)statusSet byFlatId:(NSInteger)flatId  {

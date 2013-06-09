@@ -282,8 +282,8 @@ trueParametr=!trueParametr;
         popoverController.popoverContentSize = CGSizeMake(startCurrentButton.frame.size.width,dropMenu.frame.size.height);
      else
     popoverController.popoverContentSize = CGSizeMake(dropMenu.frame.size.width,dropMenu.frame.size.height);
-    [[[popoverController contentViewController] view] setBackgroundColor:[UIColor grayColor]];
-    [popoverController presentPopoverFromRect:selectButton.frame inView:self.view permittedArrowDirections:UIPopoverArrowDirectionUp animated:YES];
+    [[[popoverController contentViewController] view] setBackgroundColor:[UIColor clearColor]];
+    [popoverController presentPopoverWithoutInnerShadowFromRect:selectButton.frame inView:self.view permittedArrowDirections:UIPopoverArrowDirectionUp animated:YES];
 }
 #pragma mark - UIPopoverController Delegate
 
